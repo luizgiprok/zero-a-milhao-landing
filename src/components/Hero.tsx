@@ -30,18 +30,7 @@ const Hero = () => {
           usando um método prático e linguagem simples
         </p>
         
-        {/* Video Player */}
-        <div className="mb-8 max-w-3xl mx-auto">
-          <div className="aspect-w-16 aspect-h-9 relative">
-            <iframe 
-              src="https://youtube.com/shorts/4ZRS2CYr_Us?feature=share" 
-              title="Presentation Video"
-              className="w-full h-[480px] mb-6 rounded-lg shadow-lg"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            ></iframe>
-          </div>
+     
           
           {!showButton && (
             <div className="mt-4 p-3 bg-gray-100 rounded-lg shadow">
