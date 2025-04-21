@@ -34,7 +34,7 @@ const Hero = () => {
         <div className="mb-8 max-w-3xl mx-auto">
           <div className="aspect-w-16 aspect-h-9 relative">
             <iframe 
-              src="https://youtube.com/shorts/GNJ1tJ0UA7A" 
+              src="https://youtube.com/shorts/4ZRS2CYr_Us?feature=share" 
               title="Presentation Video"
               className="w-full h-[480px] mb-6 rounded-lg shadow-lg"
               frameBorder="0"
