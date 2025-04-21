@@ -10,6 +10,7 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isLogin, setIsLogin] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,15 +23,39 @@ const Auth = () => {
     checkSession();
   }, [navigate]);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      if (error) throw error;
+      let authResponse;
+      
+      if (isLogin) {
+        authResponse = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+      } else {
+        authResponse = await supabase.auth.signUp({
+          email,
+          password,
+        });
+      }
+
+      if (authResponse.error) throw authResponse.error;
+
+      if (!isLogin) {
+        // Call the create_new_admin function after successful signup
+        const { error: adminError } = await supabase.rpc('create_new_admin', {
+          admin_email: email,
+        });
+        
+        if (adminError) throw adminError;
+        
+        toast.success("Conta criada com sucesso! Faça login para continuar.");
+        setIsLogin(true);
+        return;
+      }
+
       navigate("/admin");
     } catch (error: any) {
       toast.error(error.message);
@@ -44,10 +69,10 @@ const Auth = () => {
       <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-xl shadow-lg">
         <div>
           <h2 className="text-center text-3xl font-bold text-gray-900">
-            Admin Login
+            {isLogin ? "Admin Login" : "Criar Conta Admin"}
           </h2>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
+        <form className="mt-8 space-y-6" onSubmit={handleAuth}>
           <div className="space-y-4">
             <Input
               type="email"
@@ -69,9 +94,18 @@ const Auth = () => {
             className="w-full"
             disabled={loading}
           >
-            {loading ? "Logging in..." : "Login"}
+            {loading ? "Processando..." : isLogin ? "Entrar" : "Criar Conta"}
           </Button>
         </form>
+        <div className="text-center">
+          <button
+            type="button"
+            onClick={() => setIsLogin(!isLogin)}
+            className="text-primary hover:underline"
+          >
+            {isLogin ? "Criar nova conta" : "Já tenho uma conta"}
+          </button>
+        </div>
       </div>
     </div>
   );
