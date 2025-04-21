@@ -57,7 +57,7 @@ const Hero = () => {
           <p className="text-gray-600">Preço promocional por tempo limitado</p>
         </div>
       </div>
-    </div>
+    
   );
 };
 
