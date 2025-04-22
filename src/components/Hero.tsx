@@ -30,6 +30,18 @@ const Hero = () => {
           usando um método prático e linguagem simples
         </p>
         
+        {/* YouTube Video */}
+        <div className="max-w-2xl mx-auto mb-8">
+          <div className="relative pt-[56.25%]">
+            <iframe
+              className="absolute top-0 left-0 w-full h-full rounded-lg shadow-lg"
+              src="https://www.youtube.com/embed/4ZRS2CYr_Us"
+              title="Apresentação do Curso"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          </div>
+        </div>
      
           
           {!showButton && (
@@ -40,7 +52,6 @@ const Hero = () => {
               </p>
             </div>
           )}
-        </div>
         
         {/* CTA Button - Only shows after the timer */}
         <div className="flex justify-center gap-4 mb-12">
@@ -57,8 +68,9 @@ const Hero = () => {
           <p className="text-gray-600">Preço promocional por tempo limitado</p>
         </div>
       </div>
-    
+    </div>
   );
 };
 
 export default Hero;
+
