@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { Json } from "@/integrations/supabase/types";
 
 interface IntegrationSettings {
   googleAnalytics: string;
@@ -46,8 +47,8 @@ const AdminIntegrations = () => {
         .eq("section_name", "integrations")
         .single();
 
-      if (data) {
-        setIntegrationSettings(data.content);
+      if (data && typeof data.content === 'object') {
+        setIntegrationSettings(data.content as IntegrationSettings);
       }
       
       setLoading(false);
@@ -63,7 +64,7 @@ const AdminIntegrations = () => {
         .from("landing_page_content")
         .upsert({ 
           section_name: "integrations", 
-          content: integrationSettings 
+          content: integrationSettings as unknown as Json 
         }, { 
           onConflict: "section_name" 
         });

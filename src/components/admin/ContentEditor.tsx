@@ -5,11 +5,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { Json } from "@/integrations/supabase/types";
 
 interface Section {
   id: string;
   section_name: string;
   content: any;
+}
+
+interface SectionContent {
+  title?: string;
+  subtitle?: string;
+  videoUrl?: string;
+  [key: string]: any;
 }
 
 const ContentEditor = () => {
@@ -40,7 +48,7 @@ const ContentEditor = () => {
     try {
       const { error } = await supabase
         .from("landing_page_content")
-        .update({ content: section.content })
+        .update({ content: section.content as unknown as Json })
         .eq("id", section.id);
       
       if (error) throw error;
@@ -64,8 +72,9 @@ const ContentEditor = () => {
 
       const videoSection = sections.find(s => s.section_name === "hero");
       if (videoSection) {
+        const sectionContent = videoSection.content as SectionContent;
         const updatedContent = {
-          ...videoSection.content,
+          ...sectionContent,
           videoUrl: `${process.env.VITE_SUPABASE_URL}/storage/v1/object/public/landing-media/${data.path}`
         };
         await updateSection({ ...videoSection, content: updatedContent });
@@ -89,13 +98,14 @@ const ContentEditor = () => {
           <div>
             <label className="block text-sm font-medium mb-1">Title</label>
             <Input
-              value={sections.find(s => s.section_name === "hero")?.content.title || ""}
+              value={(sections.find(s => s.section_name === "hero")?.content as SectionContent)?.title || ""}
               onChange={(e) => {
                 const section = sections.find(s => s.section_name === "hero");
                 if (section) {
+                  const sectionContent = section.content as SectionContent;
                   updateSection({
                     ...section,
-                    content: { ...section.content, title: e.target.value }
+                    content: { ...sectionContent, title: e.target.value }
                   });
                 }
               }}
@@ -104,13 +114,14 @@ const ContentEditor = () => {
           <div>
             <label className="block text-sm font-medium mb-1">Subtitle</label>
             <Input
-              value={sections.find(s => s.section_name === "hero")?.content.subtitle || ""}
+              value={(sections.find(s => s.section_name === "hero")?.content as SectionContent)?.subtitle || ""}
               onChange={(e) => {
                 const section = sections.find(s => s.section_name === "hero");
                 if (section) {
+                  const sectionContent = section.content as SectionContent;
                   updateSection({
                     ...section,
-                    content: { ...section.content, subtitle: e.target.value }
+                    content: { ...sectionContent, subtitle: e.target.value }
                   });
                 }
               }}

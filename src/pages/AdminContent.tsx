@@ -10,20 +10,25 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { Json } from "@/integrations/supabase/types";
+
+interface HeroContent {
+  title: string;
+  subtitle: string;
+  videoUrl: string;
+}
+
+interface SectionsContent {
+  benefits: boolean;
+  curriculum: boolean;
+  testimonials: boolean;
+  faq: boolean;
+  cta: boolean;
+}
 
 interface SiteContent {
-  hero: {
-    title: string;
-    subtitle: string;
-    videoUrl: string;
-  };
-  sections: {
-    benefits: boolean;
-    curriculum: boolean;
-    testimonials: boolean;
-    faq: boolean;
-    cta: boolean;
-  };
+  hero: HeroContent;
+  sections: SectionsContent;
 }
 
 const AdminContent = () => {
@@ -65,10 +70,17 @@ const AdminContent = () => {
         const sectionsContent = data.find(item => item.section_name === "sections");
         
         if (heroContent || sectionsContent) {
-          setContent({
-            hero: heroContent ? heroContent.content : content.hero,
-            sections: sectionsContent ? sectionsContent.content : content.sections
-          });
+          const updatedContent = { ...content };
+          
+          if (heroContent && typeof heroContent.content === 'object') {
+            updatedContent.hero = heroContent.content as HeroContent;
+          }
+          
+          if (sectionsContent && typeof sectionsContent.content === 'object') {
+            updatedContent.sections = sectionsContent.content as SectionsContent;
+          }
+          
+          setContent(updatedContent);
         }
       }
       
@@ -86,7 +98,7 @@ const AdminContent = () => {
         .from("landing_page_content")
         .upsert({ 
           section_name: "hero", 
-          content: content.hero 
+          content: content.hero as unknown as Json
         }, { 
           onConflict: "section_name" 
         });
@@ -98,7 +110,7 @@ const AdminContent = () => {
         .from("landing_page_content")
         .upsert({ 
           section_name: "sections", 
-          content: content.sections 
+          content: content.sections as unknown as Json
         }, { 
           onConflict: "section_name" 
         });

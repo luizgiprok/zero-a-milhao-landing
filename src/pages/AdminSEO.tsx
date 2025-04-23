@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { Json } from "@/integrations/supabase/types";
 
 interface SEOSettings {
   title: string;
@@ -44,8 +45,8 @@ const AdminSEO = () => {
         .eq("section_name", "seo")
         .single();
 
-      if (data) {
-        setSeoSettings(data.content);
+      if (data && typeof data.content === 'object') {
+        setSeoSettings(data.content as SEOSettings);
       }
       
       setLoading(false);
@@ -61,7 +62,7 @@ const AdminSEO = () => {
         .from("landing_page_content")
         .upsert({ 
           section_name: "seo", 
-          content: seoSettings 
+          content: seoSettings as unknown as Json 
         }, { 
           onConflict: "section_name" 
         });
