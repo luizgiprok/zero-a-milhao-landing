@@ -90,6 +90,10 @@ const ContentEditor = () => {
     return <div>Loading content...</div>;
   }
 
+  // Find the hero section or use a default empty object
+  const heroSection = sections.find(s => s.section_name === "hero");
+  const heroContent = heroSection ? (heroSection.content as SectionContent) : {};
+
   return (
     <div className="space-y-8">
       <div className="bg-white p-6 rounded-lg shadow">
@@ -98,14 +102,16 @@ const ContentEditor = () => {
           <div>
             <label className="block text-sm font-medium mb-1">Title</label>
             <Input
-              value={(sections.find(s => s.section_name === "hero")?.content as SectionContent)?.title || ""}
+              value={heroContent?.title || ""}
               onChange={(e) => {
-                const section = sections.find(s => s.section_name === "hero");
-                if (section) {
-                  const sectionContent = section.content as SectionContent;
+                if (heroSection) {
+                  const updatedContent = { 
+                    ...heroContent, 
+                    title: e.target.value 
+                  };
                   updateSection({
-                    ...section,
-                    content: { ...sectionContent, title: e.target.value }
+                    ...heroSection,
+                    content: updatedContent
                   });
                 }
               }}
@@ -114,14 +120,16 @@ const ContentEditor = () => {
           <div>
             <label className="block text-sm font-medium mb-1">Subtitle</label>
             <Input
-              value={(sections.find(s => s.section_name === "hero")?.content as SectionContent)?.subtitle || ""}
+              value={heroContent?.subtitle || ""}
               onChange={(e) => {
-                const section = sections.find(s => s.section_name === "hero");
-                if (section) {
-                  const sectionContent = section.content as SectionContent;
+                if (heroSection) {
+                  const updatedContent = { 
+                    ...heroContent, 
+                    subtitle: e.target.value 
+                  };
                   updateSection({
-                    ...section,
-                    content: { ...sectionContent, subtitle: e.target.value }
+                    ...heroSection,
+                    content: updatedContent
                   });
                 }
               }}

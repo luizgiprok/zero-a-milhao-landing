@@ -48,7 +48,24 @@ const AdminIntegrations = () => {
         .single();
 
       if (data && typeof data.content === 'object') {
-        setIntegrationSettings(data.content as IntegrationSettings);
+        // Check if the structure matches what we expect
+        const integrationData = data.content;
+        if (
+          integrationData && 
+          'googleAnalytics' in integrationData && 
+          'googleAds' in integrationData && 
+          'googleSearchConsole' in integrationData && 
+          'customHeadCode' in integrationData && 
+          'customBodyCode' in integrationData
+        ) {
+          setIntegrationSettings({
+            googleAnalytics: String(integrationData.googleAnalytics || ''),
+            googleAds: String(integrationData.googleAds || ''),
+            googleSearchConsole: String(integrationData.googleSearchConsole || ''),
+            customHeadCode: String(integrationData.customHeadCode || ''),
+            customBodyCode: String(integrationData.customBodyCode || '')
+          });
+        }
       }
       
       setLoading(false);

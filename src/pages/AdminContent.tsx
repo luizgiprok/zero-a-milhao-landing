@@ -73,11 +73,41 @@ const AdminContent = () => {
           const updatedContent = { ...content };
           
           if (heroContent && typeof heroContent.content === 'object') {
-            updatedContent.hero = heroContent.content as HeroContent;
+            // Check if the structure matches what we expect
+            const heroData = heroContent.content;
+            if (
+              heroData && 
+              'title' in heroData && 
+              'subtitle' in heroData && 
+              'videoUrl' in heroData
+            ) {
+              updatedContent.hero = {
+                title: String(heroData.title || ''),
+                subtitle: String(heroData.subtitle || ''),
+                videoUrl: String(heroData.videoUrl || '')
+              };
+            }
           }
           
           if (sectionsContent && typeof sectionsContent.content === 'object') {
-            updatedContent.sections = sectionsContent.content as SectionsContent;
+            // Check if the structure matches what we expect
+            const sectionsData = sectionsContent.content;
+            if (
+              sectionsData && 
+              'benefits' in sectionsData && 
+              'curriculum' in sectionsData && 
+              'testimonials' in sectionsData && 
+              'faq' in sectionsData && 
+              'cta' in sectionsData
+            ) {
+              updatedContent.sections = {
+                benefits: Boolean(sectionsData.benefits),
+                curriculum: Boolean(sectionsData.curriculum),
+                testimonials: Boolean(sectionsData.testimonials),
+                faq: Boolean(sectionsData.faq),
+                cta: Boolean(sectionsData.cta)
+              };
+            }
           }
           
           setContent(updatedContent);

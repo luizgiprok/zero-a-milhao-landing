@@ -46,7 +46,22 @@ const AdminSEO = () => {
         .single();
 
       if (data && typeof data.content === 'object') {
-        setSeoSettings(data.content as SEOSettings);
+        // Check if the structure matches what we expect
+        const seoData = data.content;
+        if (
+          seoData && 
+          'title' in seoData && 
+          'description' in seoData && 
+          'keywords' in seoData && 
+          'slug' in seoData
+        ) {
+          setSeoSettings({
+            title: String(seoData.title || ''),
+            description: String(seoData.description || ''),
+            keywords: String(seoData.keywords || ''),
+            slug: String(seoData.slug || '')
+          });
+        }
       }
       
       setLoading(false);
