@@ -16,8 +16,11 @@ const Auth = () => {
 
   useEffect(() => {
     const checkSession = async () => {
+      console.log("Checking session...");
       const { data: { session } } = await supabase.auth.getSession();
+      console.log("Session status:", session ? "Active" : "None");
       if (session) {
+        console.log("User is logged in, navigating to admin...");
         navigate("/admin");
       }
     };
@@ -31,11 +34,13 @@ const Auth = () => {
       let authResponse;
       
       if (isLogin) {
+        console.log("Attempting login with:", email);
         authResponse = await supabase.auth.signInWithPassword({
           email,
           password,
         });
       } else {
+        console.log("Attempting signup with:", email);
         authResponse = await supabase.auth.signUp({
           email,
           password,
@@ -43,6 +48,8 @@ const Auth = () => {
       }
 
       if (authResponse.error) throw authResponse.error;
+      
+      console.log("Auth response:", authResponse);
 
       if (!isLogin) {
         // Call the create_new_admin function after successful signup
@@ -54,11 +61,14 @@ const Auth = () => {
         
         toast.success("Conta criada com sucesso! Faça login para continuar.");
         setIsLogin(true);
+        setLoading(false);
         return;
       }
 
+      console.log("Login successful, navigating to admin...");
       navigate("/admin");
     } catch (error: any) {
+      console.error("Auth error:", error);
       toast.error(error.message);
     } finally {
       setLoading(false);

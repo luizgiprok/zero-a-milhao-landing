@@ -6,6 +6,7 @@ import AdminLayout from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Eye, Users, FileText, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 const Admin = () => {
   const [loading, setLoading] = useState(true);
@@ -13,25 +14,62 @@ const Admin = () => {
 
   useEffect(() => {
     const checkAdmin = async () => {
+      console.log("Checking admin session...");
       const { data: { session } } = await supabase.auth.getSession();
+      
       if (!session) {
+        console.log("No session found, redirecting to auth...");
         navigate("/auth");
         return;
       }
 
-      const { data: adminData } = await supabase
-        .from("admin_users")
-        .select("*")
-        .single();
+      console.log("Session found, checking admin rights...");
+      try {
+        const { data: adminData, error } = await supabase
+          .from("admin_users")
+          .select("*")
+          .eq("id", session.user.id)
+          .single();
 
-      if (!adminData) {
+        if (error) {
+          console.error("Error fetching admin data:", error);
+          throw error;
+        }
+
+        if (!adminData) {
+          console.log("User is not an admin, logging out...");
+          await supabase.auth.signOut();
+          toast.error("Você não tem permissão de administrador");
+          navigate("/auth");
+          return;
+        }
+        
+        console.log("Admin verification successful");
+        setLoading(false);
+      } catch (error) {
+        console.error("Admin verification failed:", error);
         await supabase.auth.signOut();
+        toast.error("Erro ao verificar permissões de administrador");
         navigate("/auth");
       }
-      setLoading(false);
     };
 
     checkAdmin();
+
+    // Subscribe to auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        console.log("Auth state changed:", event);
+        if (event === "SIGNED_OUT") {
+          navigate("/auth");
+        }
+      }
+    );
+
+    // Clean up the subscription
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [navigate]);
 
   if (loading) {

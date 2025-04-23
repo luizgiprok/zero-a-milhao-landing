@@ -17,14 +17,16 @@ interface SectionVisibility {
   cta: boolean;
 }
 
+const defaultVisibility: SectionVisibility = {
+  benefits: true,
+  curriculum: true,
+  testimonials: true,
+  faq: true,
+  cta: true
+};
+
 const Index = () => {
-  const [visibilitySettings, setVisibilitySettings] = useState<SectionVisibility>({
-    benefits: true,
-    curriculum: true,
-    testimonials: true,
-    faq: true,
-    cta: true
-  });
+  const [visibilitySettings, setVisibilitySettings] = useState<SectionVisibility>(defaultVisibility);
   
   useEffect(() => {
     const fetchVisibilitySettings = async () => {
