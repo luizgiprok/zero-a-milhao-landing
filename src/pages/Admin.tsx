@@ -25,10 +25,12 @@ const Admin = () => {
 
       console.log("Session found, checking admin rights...");
       try {
+        // Vamos fazer uma consulta direta pelo email do usuário em vez de pelo ID
+        // para evitar possíveis problemas de políticas de segurança
         const { data: adminData, error } = await supabase
           .from("admin_users")
           .select("*")
-          .eq("id", session.user.id)
+          .eq("email", session.user.email)
           .single();
 
         if (error) {

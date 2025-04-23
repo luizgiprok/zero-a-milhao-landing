@@ -65,6 +65,27 @@ const Auth = () => {
         return;
       }
 
+      // Verificação adicional se o usuário é admin antes de redirecionar
+      try {
+        const { data: adminCheck, error: adminCheckError } = await supabase
+          .from('admin_users')
+          .select('*')
+          .eq('email', email)
+          .single();
+        
+        if (adminCheckError || !adminCheck) {
+          console.log("User is not an admin:", email);
+          toast.error("Este usuário não tem permissões de administrador");
+          // Deslogar o usuário
+          await supabase.auth.signOut();
+          setLoading(false);
+          return;
+        }
+      } catch (checkError) {
+        console.error("Error checking admin status:", checkError);
+        // Prosseguir com o login mesmo assim, deixar a página Admin lidar com a verificação
+      }
+
       console.log("Login successful, navigating to admin...");
       navigate("/admin");
     } catch (error: any) {
