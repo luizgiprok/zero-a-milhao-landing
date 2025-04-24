@@ -14,6 +14,7 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
+  const [debugInfo, setDebugInfo] = useState<any>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -32,6 +33,8 @@ const Auth = () => {
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setDebugInfo(null);
+    
     try {
       let authResponse;
       
@@ -49,16 +52,34 @@ const Auth = () => {
         });
       }
 
+      console.log("Auth response:", authResponse);
+      setDebugInfo(authResponse);
+
       if (authResponse.error) throw authResponse.error;
       
-      console.log("Auth response:", authResponse);
-
       if (!isLogin) {
-        const { error: adminError } = await supabase.rpc('create_new_admin', {
+        // Se é um cadastro, chama a função RPC para criar o admin
+        console.log("Creating admin user via RPC...");
+        const { data: rpcResult, error: rpcError } = await supabase.rpc('create_new_admin', {
           admin_email: email,
         });
         
-        if (adminError) throw adminError;
+        console.log("RPC result:", rpcResult);
+        console.log("RPC error:", rpcError);
+        
+        if (rpcError) {
+          console.error("RPC error details:", rpcError);
+          throw rpcError;
+        }
+        
+        // Verificação manual na tabela admin_users
+        const { data: adminCheck, error: checkError } = await supabase
+          .from('admin_users')
+          .select('*')
+          .eq('email', email);
+          
+        console.log("Admin check result:", adminCheck);
+        console.log("Admin check error:", checkError);
         
         toast.success("Conta criada com sucesso! Faça login para continuar.");
         setIsLogin(true);
@@ -68,13 +89,16 @@ const Auth = () => {
 
       // Verificação adicional se o usuário é admin antes de redirecionar
       try {
+        console.log("Checking if user is admin...");
         const { data: adminCheck, error: adminCheckError } = await supabase
           .from('admin_users')
           .select('*')
-          .eq('email', email)
-          .single();
+          .eq('email', email);
         
-        if (adminCheckError || !adminCheck) {
+        console.log("Admin check result:", adminCheck);
+        console.log("Admin check error:", adminCheckError);
+        
+        if (adminCheckError || !adminCheck || adminCheck.length === 0) {
           console.log("User is not an admin:", email);
           toast.error("Este usuário não tem permissões de administrador");
           await supabase.auth.signOut();
@@ -89,7 +113,7 @@ const Auth = () => {
       navigate("/admin");
     } catch (error: any) {
       console.error("Auth error:", error);
-      toast.error(error.message);
+      toast.error(`Erro: ${error.message || "Falha na autenticação"}`);
     } finally {
       setLoading(false);
     }
@@ -201,6 +225,14 @@ const Auth = () => {
             </button>
           </div>
         </form>
+        
+        {/* Debug info - será mostrado apenas em desenvolvimento */}
+        {debugInfo && (
+          <div className="mt-8 p-4 bg-gray-100 rounded-lg overflow-auto max-h-60 text-xs">
+            <h3 className="font-bold mb-2">Debug Info:</h3>
+            <pre>{JSON.stringify(debugInfo, null, 2)}</pre>
+          </div>
+        )}
       </div>
     </div>
   );
